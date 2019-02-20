@@ -3,3 +3,4 @@ tmp/
 __pycache__/
 .idea/
 tmp.tgz
+*.zip
