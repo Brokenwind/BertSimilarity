@@ -136,7 +136,17 @@ class BertSim:
 
     def create_model(bert_config, is_training, input_ids, input_mask, segment_ids,
                      labels, num_labels, use_one_hot_embeddings):
-        """Creates a classification model."""
+        """
+        建立微调模型
+        :param is_training: 训练还是测试
+        :param input_ids: 输入句子中每个字的索引列表
+        :param input_mask: 字的屏蔽列表
+        :param segment_ids: 分段列表，第一个句子用0表示，第二个句子用1表示，[0,0,0...,1,1,]
+        :param labels: 两个句子是否相似,0:不相似，1：相似
+        :param num_labels: 多少个样本，多少个标签
+        :param use_one_hot_embeddings:
+        :return:
+        """
         model = modeling.BertModel(
             config=bert_config,
             is_training=is_training,
@@ -145,11 +155,7 @@ class BertSim:
             token_type_ids=segment_ids,
             use_one_hot_embeddings=use_one_hot_embeddings)
 
-        # In the demo, we are doing a simple classification task on the entire
-        # segment.
-        #
         # If you want to use the token-level output, use model.get_sequence_output()
-        # instead.
         output_layer = model.get_pooled_output()
 
         hidden_size = output_layer.shape[-1].value
@@ -165,10 +171,11 @@ class BertSim:
             if is_training:
                 # I.e., 0.1 dropout
                 output_layer = tf.nn.dropout(output_layer, keep_prob=0.9)
-
+            # transpose_b=True,在乘积之前先将第二个矩阵转置
             logits = tf.matmul(output_layer, output_weights, transpose_b=True)
             logits = tf.nn.bias_add(logits, output_bias)
             probabilities = tf.nn.softmax(logits, axis=-1)
+            # 使用softmax losss 作为损失函数
             log_probs = tf.nn.log_softmax(logits, axis=-1)
 
             one_hot_labels = tf.one_hot(labels, depth=num_labels, dtype=tf.float32)
