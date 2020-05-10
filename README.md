@@ -1,6 +1,6 @@
 # BertSimilarity
 
-基于Google的BERT模型来进行语义相似度比较
+基于Google的BERT模型来进行语义相似度计算
 
 ## 1. 基本原理
 
