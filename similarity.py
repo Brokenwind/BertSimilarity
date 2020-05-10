@@ -10,8 +10,15 @@ import tokenization
 import modeling
 import optimization
 
-
 # os.environ['CUDA_VISIBLE_DEVICES'] = '1'
+
+flags = tf.flags
+
+FLAGS = flags.FLAGS
+
+flags.DEFINE_string(
+    "mode", tf.estimator.ModeKeys.TRAIN,
+    "run mode, train/eval/predict")
 
 
 class InputExample(object):
@@ -265,7 +272,7 @@ class BertSim:
 
         bert_config = modeling.BertConfig.from_json_file(args.config_name)
         label_list = self.processor.get_labels()
-        train_examples = self.processor.get_train_examples(args.data_dir)
+        train_examples = self.processor.get_train_examples(args.dataset_path)
         num_train_steps = int(
             len(train_examples) / self.batch_size * args.num_train_epochs)
         num_warmup_steps = int(num_train_steps * 0.1)
@@ -607,7 +614,7 @@ class BertSim:
 
         label_list = self.processor.get_labels()
 
-        train_examples = self.processor.get_train_examples(args.data_dir)
+        train_examples = self.processor.get_train_examples(args.dataset_path)
         num_train_steps = int(len(train_examples) / args.batch_size * args.num_train_epochs)
 
         estimator = self.get_estimator()
@@ -635,7 +642,7 @@ class BertSim:
     def eval(self):
         if self.mode is None:
             raise ValueError("Please set the 'mode' parameter")
-        eval_examples = self.processor.get_dev_examples(args.data_dir)
+        eval_examples = self.processor.get_dev_examples(args.dataset_path)
         eval_file = os.path.join(args.output_dir, "eval.tf_record")
         label_list = self.processor.get_labels()
         self.file_based_convert_examples_to_features(
@@ -669,15 +676,23 @@ class BertSim:
         return prediction
 
 
-if __name__ == '__main__':
+def main(_):
     sim = BertSim()
-    sim.set_mode(tf.estimator.ModeKeys.TRAIN)
-    sim.train()
-    sim.set_mode(tf.estimator.ModeKeys.EVAL)
-    sim.eval()
-    # sim.set_mode(tf.estimator.ModeKeys.PREDICT)
-    # while True:
-    #     sentence1 = input('sentence1: ')
-    #     sentence2 = input('sentence2: ')
-    #     predict = sim.predict(sentence1, sentence2)
-    #     print(f'similarity：{predict[0][1]}')
+    if FLAGS.mode == tf.estimator.ModeKeys.TRAIN:
+        sim.set_mode(tf.estimator.ModeKeys.TRAIN)
+        sim.train()
+    elif FLAGS.mode == tf.estimator.ModeKeys.EVAL:
+        sim.set_mode(tf.estimator.ModeKeys.EVAL)
+        sim.eval()
+    elif FLAGS.mode == tf.estimator.ModeKeys.PREDICT:
+        sim.set_mode(tf.estimator.ModeKeys.PREDICT)
+        while True:
+            sentence1 = input('sentence1: ')
+            sentence2 = input('sentence2: ')
+            predict = sim.predict(sentence1, sentence2)
+            print(f'similarity：{predict[0][1]}')
+
+
+if __name__ == '__main__':
+    flags.mark_flag_as_required("mode")
+    tf.app.run()
