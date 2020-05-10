@@ -4,3 +4,5 @@ __pycache__/
 .idea/
 tmp.tgz
 *.zip
+model_ouput
+pretrained_model
