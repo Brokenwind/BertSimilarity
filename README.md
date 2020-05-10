@@ -1,6 +1,6 @@
 # BertSimilarity
 
-基于Google的BERT模型来进行语义相似度计算
+基于Google的BERT模型来进行语义相似度计算。代码基于tensorflow 1。
 
 ## 1. 基本原理
 
