@@ -99,6 +99,11 @@ sh start.sh
 tail -f logs/similarity_train.log
 ```
 
+如果没有机器进行训练，我这里已经训练好了一份参数文件:
+
+![点击此处获取参数文件](https://pan.baidu.com/s/19pR3PS8AVIPpKZAXPkHdSA)，提取码: fud8
+
+解压之后，model_output复制到项目根目录的data目录下边，然后就可以进行评价和测试
 
 **2.2.2 评价阶段**
 
